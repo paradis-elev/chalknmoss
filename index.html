@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>[[BIG SHOT MARKETPLACE]]</title>
+<meta charset="UTF-8">
+
+<style>
+/* ======================= GLOBAL STYLE ======================= */
+
+body {
+    background:#0a0014;
+    color:yellow;
+    font-family:"Courier New", monospace;
+    margin:0;
+    overflow:hidden;
+}
+
+/* CRT Lines */
+body::after {
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    background:repeating-linear-gradient(
+        rgba(255,0,255,0.05) 0px,
+        rgba(255,0,255,0.05) 2px,
+        transparent 2px,
+        transparent 4px
+    );
+    mix-blend-mode:screen;
+    z-index:999;
+}
+
+nav {
+    text-align:center;
+    margin-top:20px;
+}
+nav button {
+    color:yellow;
+    background:none;
+    border:3px solid magenta;
+    padding:10px 20px;
+    cursor:pointer;
+    margin:0 10px;
+    font-size:1.2rem;
+    transition:.2s;
+}
+nav button:hover {
+    background:magenta;
+    color:black;
+    transform:scale(1.1);
+}
+
+/* Glitch title */
+h1 {
+    text-align:center;
+    text-shadow:0 0 10px magenta, 0 0 20px yellow;
+    animation:titleglitch .2s infinite;
+}
+@keyframes titleglitch {
+    20% {transform:skew(2deg);}
+    40% {transform:skew(-3deg);}
+}
+
+/* PAGE SECTIONS */
+.page {
+    display:none;
+    height:100vh;
+    width:100%;
+    overflow:auto;
+    padding:20px;
+}
+.page.active {
+    display:block;
+}
+
+/* Items */
+.item {
+    background:#330033;
+    border:3px solid magenta;
+    padding:20px;
+    width:220px;
+    text-align:center;
+    box-shadow:0 0 10px magenta;
+    transition:.2s;
+}
+.item:hover {
+    transform:scale(1.1);
+    box-shadow:0 0 20px yellow;
+}
+.item button {
+    padding:10px;
+    background:yellow;
+    border:none;
+    cursor:pointer;
+    font-weight:bolder;
+}
+
+/* Cart Box */
+#cartBox {
+    position:fixed;
+    right:20px;
+    top:20px;
+    background:#330033;
+    border:3px solid magenta;
+    width:240px;
+    padding:20px;
+    box-shadow:0 0 10px magenta;
+    z-index:9999;
+}
+
+/* Spamton PNG */
+#spamton {
+    position:absolute;
+    left:20px;
+    bottom:20px;
+    width:160px;
+    animation:bounce 1.2s infinite ease-in-out, shake .2s infinite;
+}
+@keyframes bounce {
+    50% {transform:translateY(-10px);}
+}
+@keyframes shake {
+    50% {transform:translateX(3px);}
+}
+
+/* Voice Popup */
+.popupVoice {
+    position:fixed;
+    left:50%;
+    top:10%;
+    transform:translateX(-50%);
+    background:#ff00ff;
+    padding:15px 30px;
+    color:yellow;
+    border:3px solid yellow;
+    font-size:1.4rem;
+    animation:voiceglitch .15s infinite;
+    z-index:9000;
+}
+@keyframes voiceglitch {
+    50% {transform:translateX(-50%) skew(3deg);}
+}
+
+/* TV STATIC TRANSITION */
+#tv-static {
+    position:fixed;
+    inset:0;
+    background:url("static.gif");
+    background-size:cover;
+    opacity:0;
+    pointer-events:none;
+    transition:.3s;
+    z-index:10000;
+}
+#tv-static.active {
+    opacity:1;
+}
+
+/* Jumpscare */
+#jumpscare {
+    position:fixed;
+    inset:0;
+    background:black;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:11000;
+}
+#jumpscare img {
+    width:70%;
+    animation:shake .1s infinite;
+}
+
+/* Visualizer */
+#visualizer {
+    display:block;
+    margin:20px auto;
+    background:black;
+    border:3px solid magenta;
+}
+</style>
+</head>
+
+<body>
+
+<!-- TV Static Transition -->
+<div id="tv-static"></div>
+
+<!-- Jumpscare -->
+<div id="jumpscare">
+    <img src="spamton-jumpscare.png">
+</div>
+
+<!-- Animated Spamton -->
+<img id="spamton" src="spamton.png">
+
+<!-- Audio -->
+<audio id="hoverS" src="glitch1.mp3"></audio>
+<audio id="clickS" src="glitch2.mp3"></audio>
+<audio id="voiceS" src="spamton-voice.mp3"></audio>
+<audio id="music" src="background_music.mp3" loop></audio>
+
+<!-- CART BOX -->
+<div id="cartBox">
+    <h3>Your CART</h3>
+    <ul id="cartList"></ul>
+    <strong>Total: $<span id="cartTotal">0</span></strong>
+    <br><br>
+    <button onclick="switchPage('checkout')">CHECK OUT →</button>
+</div>
+
+<!-- =============== PAGES =============== -->
+
+<div id="home" class="page active">
+    <h1>[[WELCOME HOME]]</h1>
+
+    <nav>
+        <button onclick="switchPage('shop')">ENTER SHOP</button>
+    </nav>
+
+    <canvas id="visualizer" width="700" height="150"></canvas>
+    <p style="text-align:center;">Press <b>M</b> to start music + visualizer</p>
+</div>
+
+<div id="shop" class="page">
+    <h1>[[BIG SHOT SHOP]]</h1>
+
+    <nav>
+        <button onclick="switchPage('home')">HOME</button>
+        <button onclick="switchPage('checkout')">CHECKOUT</button>
+    </nav>
+
+    <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:20px;margin-top:30px;">
+        <div class="item" onmouseover="playHover()">
+            <h3>Hyperlink Blocker — $5</h3>
+            <button onclick="addToCart('Hyperlink Blocker',5)">ADD</button>
+        </div>
+
+        <div class="item" onmouseover="playHover()">
+            <h3>Broken Screen — $12</h3>
+            <button onclick="addToCart('Broken Screen',12)">ADD</button>
+        </div>
+
+        <div class="item" onmouseover="playHover()">
+            <h3>Mystery Box — $7</h3>
+            <button onclick="addToCart('Mystery Box',7)">ADD</button>
+        </div>
+    </div>
+</div>
+
+<div id="checkout" class="page">
+    <h1>[[FINAL DEAL TIME]]</h1>
+
+    <nav>
+        <button onclick="switchPage('home')">HOME</button>
+        <button onclick="switchPage('shop')">SHOP</button>
+    </nav>
+
+    <div style="width:100%;text-align:center;margin-top:40px;">
+        <h2>Your Items</h2>
+        <ul id="checkoutList" style="list-style:none;font-size:1.3rem;"></ul>
+        <h2>Total: $<span id="checkoutTotal"></span></h2>
+
+        <button onclick="finalize()" style="padding:20px;font-size:1.5rem;">
+            CONFIRM PURCHASE
+        </button>
+    </div>
+</div>
+
+<script>
+/* ======================== CART ========================== */
+
+let cart = [];
+
+function addToCart(n,p){
+    cart.push({name:n,price:p});
+    document.getElementById("clickS").play();
+    updateCart();
+    spawnVoice();
+}
+
+function updateCart(){
+    const ul = document.getElementById("cartList");
+    ul.innerHTML="";
+    let total=0;
+    cart.forEach(i=>{
+        const li=document.createElement("li");
+        li.textContent=i.name+" — $"+i.price;
+        ul.appendChild(li);
+        total+=i.price;
+    });
+    document.getElementById("cartTotal").textContent = total;
+}
+
+/* ======================== PAGE SWITCH ========================== */
+
+function switchPage(target){
+    // TV-static transition
+    const tv = document.getElementById("tv-static");
+    tv.classList.add("active");
+
+    setTimeout(()=>{
+        document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+        document.getElementById(target).classList.add("active");
+        tv.classList.remove("active");
+
+        if(target==="checkout") loadCheckout();
+    },300);
+}
+
+/* ======================== CHECKOUT ========================== */
+
+function loadCheckout(){
+    const ul = document.getElementById("checkoutList");
+    ul.innerHTML="";
+    let total=0;
+
+    cart.forEach(i=>{
+        const li=document.createElement("li");
+        li.textContent=i.name+" — $"+i.price;
+        ul.appendChild(li);
+        total+=i.price;
+    });
+
+    document.getElementById("checkoutTotal").textContent = total;
+}
+
+function finalize(){
+    alert("THANK YOU FOR MAKING A [[BIG SHOT]] PURCHASE!!");
+    cart=[];
+    updateCart();
+}
+
+/* ======================== GLITCH AUDIO ========================== */
+
+function playHover(){
+    document.getElementById("hoverS").play();
+}
+
+/* ======================== VOICE POPUP ========================== */
+
+const quotes=[
+    "HEY EVERY !!",
+    "WANT TO BE A [[BIG SHOT]]?",
+    "A DEAL YOU CAN'T REFUSE!!",
+    "WOW!! A CUSTOMER!!",
+    "I CAN MAKE YOU RICH, KID!!"
+];
+
+function spawnVoice(){
+    const div=document.createElement("div");
+    div.className="popupVoice";
+    div.textContent=quotes[Math.floor(Math.random()*quotes.length)];
+    document.body.appendChild(div);
+    document.getElementById("voiceS").play();
+    setTimeout(()=>div.remove(),1300);
+}
+
+/* ======================== JUMPSCARE ========================== */
+
+setInterval(()=>{
+    if(Math.random()<0.03){
+        const j=document.getElementById("jumpscare");
+        j.style.display="flex";
+        let s=new Audio("spamton-voice.mp3");
+        s.play();
+        setTimeout(()=>{j.style.display="none";},1000);
+    }
+},6000);
+
+/* ======================== MUSIC + VISUALIZER ========================== */
+
+document.addEventListener("keydown", e=>{
+    if(e.key==="m"){
+        let music=document.getElementById("music");
+        music.play();
+        startVisualizer(music);
+    }
+});
+
+function startVisualizer(audio){
+    const canvas=document.getElementById("visualizer");
+    const c=canvas.getContext("2d");
+
+    const ctx=new AudioContext();
+    const src=ctx.createMediaElementSource(audio);
+    const analyser=ctx.createAnalyser();
+
+    src.connect(analyser);
+    analyser.connect(ctx.destination);
+    analyser.fftSize=256;
+
+    let buffer=new Uint8Array(analyser.frequencyBinCount);
+
+    function draw(){
+        requestAnimationFrame(draw);
+        analyser.getByteFrequencyData(buffer);
+
+        c.fillStyle="black";
+        c.fillRect(0,0,canvas.width,canvas.height);
+
+        for(let i=0;i<buffer.length;i++){
+            let h=buffer[i];
+            c.fillStyle=`rgb(${h},0,${255-h})`;
+            c.fillRect(i*3, canvas.height-h, 3, h);
+        }
+    }
+    draw();
+}
+</script>
+
+</body>
+</html>
